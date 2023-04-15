@@ -3,10 +3,6 @@ var express = require('express');
 var app = express();
 var cors = require('cors')
 const upload = require("express-fileupload")
-const fs = require('fs')
-const uuid = require("uuid");
-var nodemailer = require('nodemailer');
-const math = require('mathjs')
 const pool = require("./db")
 const PORT = process.env.PORT || 5000
 app.use(cors())
