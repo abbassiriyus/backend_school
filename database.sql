@@ -128,7 +128,7 @@ PRIMARY KEY (vaccinationid)
 
 
 CREATE TABLE child_vac (
-child_vacid INT NOT NULL DEFAULT NEXTVAL('seq_child_vac'),
+child_vacid INT NOT NULL DEFAULT NEXTVAL('seq_child_vacid'),
 childid INT NOT NULL,
 vaccinationid INT NOT NULL,
 date DATE NOT NULL,
