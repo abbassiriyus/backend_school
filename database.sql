@@ -28,7 +28,6 @@ syschangedatutc TIMESTAMP(3) DEFAULT NOW() NOT NULL,
 FOREIGN KEY (addressid) REFERENCES address (addressid)
 );
 
-ALTER TABLE person ADD CONSTRAINT uq_passport UNIQUE (passportseries, passportnumber, passportdate);
 
 create table legal_rep (
 legalrepid serial primary key,
@@ -37,8 +36,6 @@ company varchar (100),
 syscreatedatutc timestamp default current_timestamp not null,
 syschangedatutc timestamp default current_timestamp not null
 );
-
-ALTER TABLE legal_rep ADD CONSTRAINT fk_lr_person FOREIGN KEY (personid) REFERENCES person(personid);
 
 CREATE TABLE "position" (
 "positionid" SERIAL PRIMARY KEY,
@@ -53,7 +50,6 @@ CREATE TABLE "labor" (
 "syscreatedatutc" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
 "syschangedatutc" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-
 
 CREATE TABLE employee(
 employeeid SERIAL NOT NULL PRIMARY KEY,
@@ -81,7 +77,6 @@ CREATE TABLE "group" (
 "syschangedatutc" timestamp(3) not null default (now())
 );
 
-
 CREATE TABLE "group_emp" (
 "employeeid" integer not null,
 "groupid" integer not null,
@@ -91,7 +86,6 @@ primary key ("groupid", "employeeid"),
 foreign key ("groupid") references "group" ("groupid"),
 foreign key ("employeeid") references "employee" ("employeeid")
 );
-
 
 CREATE TABLE "child"(
 "childid" serial primary key,
@@ -118,6 +112,7 @@ constraint "fk_chid_address" foreign key ("addressid") references "address" ("ad
 constraint "fk_group" foreign key ("groupid") references "group" ("groupid")
 );
 
+CREATE SEQUENCE seq_vaccination START WITH 1 INCREMENT BY 1;
 CREATE TABLE vaccination (
 vaccinationid INT NOT NULL DEFAULT NEXTVAL('seq_vaccination'),
 namevac VARCHAR(100) NOT NULL,
@@ -126,9 +121,9 @@ syschangedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 PRIMARY KEY (vaccinationid)
 );
 
-
+CREATE SEQUENCE seq_child_vac START WITH 1 INCREMENT BY 1;
 CREATE TABLE child_vac (
-child_vacid INT NOT NULL DEFAULT NEXTVAL('seq_child_vacid'),
+child_vacid INT NOT NULL DEFAULT NEXTVAL('seq_child_vac'),
 childid INT NOT NULL,
 vaccinationid INT NOT NULL,
 date DATE NOT NULL,
@@ -138,7 +133,6 @@ PRIMARY KEY (child_vacid),
 FOREIGN KEY (childid) REFERENCES child(childid),
 FOREIGN KEY (vaccinationid) REFERENCES vaccination(vaccinationid)
 );
-
 
 create table "relation" (
 "relationid" serial primary key,
@@ -162,7 +156,6 @@ create table "contract" (
 foreign key ("childid") references "child" ("childid"),
 foreign key ("legalrepid") references "legal_rep" ("legalrepid")
 );
-
 
 CREATE TABLE subject_group (
 subject_groupid SERIAL PRIMARY KEY,
@@ -208,7 +201,6 @@ syschangedatutc TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 CONSTRAINT fk_employee_exs FOREIGN KEY (employeeid) REFERENCES employee (employeeid),
 CONSTRAINT fk_child_exs FOREIGN KEY (childid) REFERENCES child (childid)
 );
-
 
 CREATE TABLE skill_group (
 skillgroupid SERIAL PRIMARY KEY,
@@ -267,7 +259,6 @@ CONSTRAINT "fk_room_timetable" FOREIGN KEY ("roomid") REFERENCES "room" ("roomid
 CONSTRAINT "fk_employee_timetable" FOREIGN KEY ("employeeid") REFERENCES "employee" ("employeeid")
 );
 
-
 CREATE TABLE syllabus (
 syllabusid SERIAL PRIMARY KEY,
 year INT NOT NULL,
@@ -281,4 +272,9 @@ syschangedatutc TIMESTAMP DEFAULT NOW() NOT NULL,
 FOREIGN KEY (subjectid) REFERENCES subject(subjectid)
 );
 
-select * from person
+
+ALTER TABLE legal_rep ADD CONSTRAINT fk_lr_person FOREIGN KEY (personid) REFERENCES person(personid);
+
+ALTER TABLE person ADD CONSTRAINT uq_passport UNIQUE (passportseries, passportnumber, passportdate);
+ALTER TABLE attendance ALTER COLUMN date SET DEFAULT CURRENT_DATE;
+ALTER TABLE attendance ADD CONSTRAINT fk_excuse FOREIGN KEY (excuseid) REFERENCES excuse(excuseid);

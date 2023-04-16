@@ -43,7 +43,7 @@ app.get('/address/:id', (req, res) => {
 })
 app.post('/address', (req, res) => {
     const body = req.body
-    pool.query("insert into address (region, city, street, house, building, flat) values ($1, $2, $3, $4, $5, $6) RETURNING *",
+    pool.query("insert into address (region, city, street, house, building, flat) values ($1, $2, $3, $4, $5, $6)",
         [body.region, body.city, body.street, body.house, body.building, body.flat], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
@@ -56,18 +56,27 @@ app.post('/address', (req, res) => {
 app.delete('/address/:id', (req, res) => {
     pool.query("DELETE FROM address WHERE addressid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/address/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE address SET region=$1, city=$2, street=$3, house=$4, building=$5, flat=$6 WHERE addressid=$7 RETURNING *`,
-        [body.region, body.city, body.street, body.house, body.building, body.flat, req.params.id], (err, result) => {
+    pool.query(`UPDATE address SET region=$1, city=$2, street=$3, house=$4, building=$5, flat=$6, syschangedatutc=$8 WHERE addressid=$7`,
+        [body.region, body.city, body.street, body.house, body.building, body.flat, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -77,7 +86,7 @@ app.put('/address/:id', (req, res) => {
 // Person
 app.get('/person', (req, res) => {
     pool.query("SELECT * FROM person", (err, result) => {
-        if(!err) {
+        if (!err) {
             res.status(200).send(result.rows)
         } else {
             res.status(400).send(err)
@@ -95,8 +104,8 @@ app.get('/person/:id', (req, res) => {
 })
 app.post('/person', (req, res) => {
     const body = req.body
-    pool.query("insert into person (personlastname, personfirstname, personmiddlename, dateofbirth, gender, passportseries,passportnumber, passportdate, phone, email, addressid, syscreatedatutc, syschangedatutc) values ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10, $11, $12, $13) RETURNING *",
-        [body.personlastname, body.personfirstname, body.personmiddlename, body.dateofbirth, body.gender, body.passportseries, body.passportnumber, body.passportdate, body.phone, body.email, body.addressid, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into person (personlastname, personfirstname, personmiddlename, dateofbirth, gender, passportseries,passportnumber, passportdate, phone, email, addressid) values ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10, $11) RETURNING *",
+        [body.personlastname, body.personfirstname, body.personmiddlename, body.dateofbirth, body.gender, body.passportseries, body.passportnumber, body.passportdate, body.phone, body.email, body.addressid], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -107,20 +116,44 @@ app.post('/person', (req, res) => {
 app.delete('/person/:id', (req, res) => {
     pool.query("DELETE FROM person WHERE personid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
-
-// ishlamadi 
 app.put('/person/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE person SET personlastname=$1, personfirstname=$2, personmiddlename=$3, dateofbirth=$4, gender=$5, passportseries=$6 passportnumber=$7, passportdate=$8, phone=$9, email=$10, addressid=$11 WHERE personid=$12 RETURNING *`,
-        [body.personlastname, body.personfirstname, body.personmiddlename, body.dateofbirth, body.gender, body.passportseries, body.passportnumber, body.passportdate, body.phone, body.email, body.addressid, req.params.id], (err, result) => {
+    /* pool.query(`UPDATE person SET personlastname = $1, personfirstname = $2, personmiddlename = $3,  dateofbirth = $4, gender=$5, passportseries=%6,
+    passportnumber=$7, passportdate=$8, phone=$9, email=$10, addressid=$11
+    WHERE personid = $12 `,
+        [body.personlastname, body.personfirstname, body.personmiddlename, body.dateofbirth, body.gender, body.passportseries, body.passportnumber,
+        body.passportdate, body.phone, body.email, body.addressid, req.params.id],
+        (err, result) => {
+             if (!err) {
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
+            } else {
+                res.status(400).send(err)
+            }
+        }) */
+    pool.query("UPDATE person SET personlastname = $1, personfirstname = $2, personmiddlename=$4, dateofbirth=$5, gender=$6, passportseries=$7, passportnumber=$8, passportdate=$9, phone=$10, email=$11, addressid=$12, syschangedatutc=$13 WHERE personid = $3",
+        [body.personlastname, body.personfirstname, req.params.id, body.personmiddlename, body.dateofbirth, body.gender, body.passportseries, body.passportnumber, body.passportdate, body.phone, body.email, body.addressid, datenew],
+        (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -148,8 +181,8 @@ app.get('/legal_rep/:id', (req, res) => {
 })
 app.post('/legal_rep', (req, res) => {
     const body = req.body
-    pool.query("insert into legal_rep ( personid, company, syscreatedatutc, syschangedatutc) values ($1, $2, $3, $4) RETURNING *",
-        [body.personid, body.company, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into legal_rep (personid, company) values ($1, $2)",
+        [body.personid, body.company], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -160,18 +193,27 @@ app.post('/legal_rep', (req, res) => {
 app.delete('/legal_rep/:id', (req, res) => {
     pool.query("DELETE FROM legal_rep WHERE legalrepid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/legal_rep/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE legal_rep SET personid=$1, company=$2 WHERE legalrepid=$3 RETURNING *`,
-        [body.personid, body.company, req.params.id], (err, result) => {
+    pool.query(`UPDATE legal_rep SET personid=$1, company=$2, syschangedatutc=$4 WHERE legalrepid=$3`,
+        [body.personid, body.company, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(404).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -199,8 +241,8 @@ app.get('/position/:id', (req, res) => {
 })
 app.post('/position', (req, res) => {
     const body = req.body
-    pool.query("insert into position ( positiontitle, syscreatedatutc, syschangedatutc ) values ($1, $2, $3) RETURNING *",
-        [body.positiontitle, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into position ( positiontitle) values ($1)",
+        [body.positiontitle], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -211,24 +253,32 @@ app.post('/position', (req, res) => {
 app.delete('/position/:id', (req, res) => {
     pool.query("DELETE FROM position WHERE positionid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/position/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE position SET positiontitle=$1 WHERE positionid=$2 RETURNING *`,
-        [body.positiontitle, req.params.id], (err, result) => {
+    pool.query(`UPDATE position SET positiontitle=$1, syschangedatutc=$3 WHERE positionid=$2`,
+        [body.positiontitle, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
         })
 })
-
 
 // labor
 app.get('/labor', (req, res) => {
@@ -251,8 +301,8 @@ app.get('/labor/:id', (req, res) => {
 })
 app.post('/labor', (req, res) => {
     const body = req.body
-    pool.query("insert into labor ( laborname, syscreatedatutc, syschangedatutc ) values ($1, $2, $3) RETURNING *",
-        [body.laborname, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into labor ( laborname ) values ($1)",
+        [body.laborname], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -263,24 +313,32 @@ app.post('/labor', (req, res) => {
 app.delete('/labor/:id', (req, res) => {
     pool.query("DELETE FROM labor WHERE laborid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/labor/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE labor SET laborname=$1 WHERE laborid=$2 RETURNING *`,
-        [body.laborname, req.params.id], (err, result) => {
+    pool.query(`UPDATE labor SET laborname=$1, syschangedatutc=$3 WHERE laborid=$2`,
+        [body.laborname, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
         })
 })
-
 
 // employee
 app.get('/employee', (req, res) => {
@@ -301,41 +359,46 @@ app.get('/employee/:id', (req, res) => {
         }
     })
 })
-// ishlamadi
-// app.post('/employee', (req, res) => {
-//     const body = req.body
-//     pool.query("insert into employee ( personid,positionid,laborid,hiredate,dismissaldate,medical_Ñert,education,photo, syscreatedatutc, syschangedatutc ) values ($1, $2, $3,$4,$5,$6, $7, $8,$9,$10) RETURNING *",
-//         [body.personid, body.positionid, body.laborid, body.hiredate, body.dismissaldate, body.medical_Ñert, body.education, body.photo, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
-//             if (!err) {
-//                 res.status(201).send("Created")
-//             } else {
-//                 res.status(400).send(err)
-//             }
-//         })
-// })
+app.post('/employee', (req, res) => {
+    const body = req.body
+    pool.query(`insert into employee ( personid, positionid, laborid, hiredate, dismissaldate, medical_nert, education ) values ($1, $2, $3,$4,$5,$6, $7)`,
+        [body.personid, body.positionid, body.laborid, body.hiredate, body.dismissaldate, body.medical_nert, body.education], (err, result) => {
+            if (!err) {
+                res.status(201).send("Created")
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
 app.delete('/employee/:id', (req, res) => {
-    pool.query("DELETE FROM labor WHERE employeeid=$1", [req.params.id], (err, result) => {
+    pool.query("DELETE FROM employee WHERE employeeid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
-// ishlamadi
-// app.put('/employee/:id', (req, res) => {
-//     const body = req.body
-//     pool.query(`UPDATE employee SET laborname=$1 WHERE employeeid=$2 RETURNING *`,
-//         [body.laborname, req.params.id], (err, result) => {
-//             if (!err) {
-//                 res.status(200).send("Updated")
-//             } else {
-//                 res.status(400).send(err)
-//             }
-//         })
-// })
-
-
+app.put('/employee/:id', (req, res) => {
+    var datenew = new Date().toISOString()
+    const body = req.body
+    pool.query(`UPDATE employee SET personid=$1, positionid=$2, laborid=$3, hiredate=$4, dismissaldate=$5, medical_nert=$6, education=$7, syschangedatutc=$9 WHERE employeeid=$8`,
+        [body.personid, body.positionid, body.laborid, body.hiredate, body.dismissaldate, body.medical_nert, body.education, req.params.id, datenew], (err, result) => {
+            if (!err) {
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
 
 //room
 app.get('/room', (req, res) => {
@@ -358,8 +421,8 @@ app.get('/room/:id', (req, res) => {
 })
 app.post('/room', (req, res) => {
     const body = req.body
-    pool.query("insert into room ( roomnumber,floor,square, syscreatedatutc, syschangedatutc ) values ($1, $2, $3,$4,$5) RETURNING *",
-        [body.roomnumber, body.floor, body.square, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into room ( roomnumber, floor, square ) values ($1, $2, $3)",
+        [body.roomnumber, body.floor, body.square], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -370,18 +433,27 @@ app.post('/room', (req, res) => {
 app.delete('/room/:id', (req, res) => {
     pool.query("DELETE FROM room WHERE roomid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/room/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE room SET roomnumber=$1,floor=$2,square=$3 WHERE roomid=$4 RETURNING *`,
-        [body.roomnumber, body.floor, body.square,  req.params.id], (err, result) => {
+    pool.query(`UPDATE room SET roomnumber=$1, floor=$2, square=$3, syschangedatutc=$5 WHERE roomid=$4`,
+        [body.roomnumber, body.floor, body.square, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -389,8 +461,64 @@ app.put('/room/:id', (req, res) => {
 })
 
 //group
-// ishlamadi
-
+app.get('/group', (req, res) => {
+    pool.query(`SELECT * FROM "group"`, (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.get('/group/:id', (req, res) => {
+    pool.query(`SELECT * FROM "group"  where groupid=$1`, [req.params.id], (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.post('/group', (req, res) => {
+    const body = req.body
+    pool.query(`insert into "group" ( groupname, ageid) values ($1, $2)`,
+        [body.groupname, body.ageid], (err, result) => {
+            if (!err) {
+                res.status(201).send("Created")
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
+app.delete('/group/:id', (req, res) => {
+    pool.query(`DELETE FROM "group" WHERE groupid=$1`, [req.params.id], (err, result) => {
+        if (!err) {
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.put('/group/:id', (req, res) => {
+    var datenew = new Date().toISOString()
+    const body = req.body
+    pool.query(`UPDATE "group" SET groupname=$1, ageid=$2, syschangedatutc=$3 WHERE groupid=$4`,
+        [body.groupname, body.ageid, datenew, req.params.id], (err, result) => {
+            if (!err) {
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
 
 //group_emp
 app.get('/group_emp', (req, res) => {
@@ -413,8 +541,8 @@ app.get('/group_emp/:id', (req, res) => {
 })
 app.post('/group_emp', (req, res) => {
     const body = req.body
-    pool.query("insert into group_emp ( groupid syscreatedatutc, syschangedatutc ) values ($1, $2, $3) RETURNING *",
-        [body.groupid, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into group_emp ( employeeid, groupid ) values ($1, $2)",
+        [body.employeeid, body.groupid], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -422,32 +550,101 @@ app.post('/group_emp', (req, res) => {
             }
         })
 })
-app.delete('/group_emp/:id', (req, res) => {
+// alohida id si yo'q ekan
+/* app.delete('/group_emp/:id', (req, res) => {
     pool.query("DELETE FROM group_emp WHERE employeeid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
+        } else {
+            res.status(400).send(err)
+        }
+    })
+}) */
+/* app.put('/group_emp/:id', (req, res) => {
+    const body = req.body
+    pool.query(`UPDATE group_emp SET groupid=$1, employeeid=$3 WHERE employeeid=$2`,
+        [body.groupid, req.params.id, body.employeeid], (err, result) => {
+            if (!err) {
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
+ */
+
+
+//child
+app.get('/child', (req, res) => {
+    pool.query("SELECT * FROM child", (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
         } else {
             res.status(400).send(err)
         }
     })
 })
-app.put('/group_emp/:id', (req, res) => {
+app.get('/child/:id', (req, res) => {
+    pool.query("SELECT * FROM child where childid=$1", [req.params.id], (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.post('/child', (req, res) => {
     const body = req.body
-    pool.query(`UPDATE group_emp SET groupid=$1 WHERE employeeid=$2 RETURNING *`,
-        [body.groupid, req.params.id], (err, result) => {
+    pool.query("insert into child ( childlastname, childfirstname, childmiddlename, dateofbirth, addressid, gender, certificateofbirth, groupid, health, isregisteredwith, allergy, deviations, medicines, healthrestrictions, diet, comment ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)",
+        [body.childlastname, body.childfirstname, body.childmiddlename, body.dateofbirth, body.addressid, body.gender, body.certificateofbirth, body.groupid, body.health, body.isregisteredwith, body.allergy, body.deviations, body.medicines, body.healthrestrictions, body.diet, body.comment], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                res.status(201).send("Created")
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
+app.delete('/child/:id', (req, res) => {
+    pool.query(`DELETE FROM child  WHERE childid=$1`, [req.params.id], (err, result) => {
+        if (!err) {
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.put('/child/:id', (req, res) => {
+    var datenew = new Date().toISOString()
+    const body = req.body
+    pool.query(`UPDATE child SET childlastname=$1, childfirstname=$2, childmiddlename=$3, dateofbirth=$4, addressid=$5, gender=$6, certificateofbirth=$7, groupid=$8,
+    health=$9, isregisteredwith=$10, allergy=$11, deviations=$12, medicines=$13, healthrestrictions=$14, diet=$15, comment=$16, syschangedatutc=$17
+    WHERE childid=$18`,
+        [body.childlastname, body.childfirstname, body.childmiddlename, body.dateofbirth, body.addressid, body.gender, body.certificateofbirth, body.groupid, body.health, body.isregisteredwith, body.allergy, body.deviations, body.medicines, body.healthrestrictions, body.diet, body.comment, datenew, req.params.id], (err, result) => {
+            if (!err) {
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
         })
 })
 
-//child
-// ishlamadi rasm borakan nimadur qilish kerak
-
-
-//vaccination
+// vaccination
 app.get('/vaccination', (req, res) => {
     pool.query("SELECT * FROM vaccination", (err, result) => {
         if (!err) {
@@ -467,9 +664,10 @@ app.get('/vaccination/:id', (req, res) => {
     })
 })
 app.post('/vaccination', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query("insert into vaccination ( namevac, syscreatedatutc, syschangedatutc ) values ($1, $2, $3) RETURNING *",
-        [body.namevac, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into vaccination ( namevac, syscreatedatutc, syschangedatutc ) values ($1, $2, $3)",
+        [body.namevac, datenew, datenew], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -480,18 +678,27 @@ app.post('/vaccination', (req, res) => {
 app.delete('/vaccination/:id', (req, res) => {
     pool.query("DELETE FROM vaccination WHERE vaccinationid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/vaccination/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE vaccination SET namevac=$1 WHERE vaccinationid=$2 RETURNING *`,
-        [body.namevac, req.params.id], (err, result) => {
+    pool.query(`UPDATE vaccination SET namevac=$1, syschangedatutc=$2 WHERE vaccinationid=$3`,
+        [body.namevac, datenew, req.params.id], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -520,8 +727,8 @@ app.get('/child_vac/:id', (req, res) => {
 })
 app.post('/child_vac', (req, res) => {
     const body = req.body
-    pool.query("insert into child_vac ( childid,vaccinationid,date, syscreatedatutc, syschangedatutc ) values ($1, $2, $3,$4,$5) RETURNING *",
-        [body.childid, body.vaccinationid, body.date, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into child_vac ( childid, vaccinationid, date) values ($1, $2, $3)",
+        [body.childid, body.vaccinationid, body.date], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -532,23 +739,33 @@ app.post('/child_vac', (req, res) => {
 app.delete('/child_vac/:id', (req, res) => {
     pool.query("DELETE FROM child_vac WHERE child_vacid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/child_vac/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE child_vac SET childid=$1,vaccinationid=$2,date=$3 WHERE child_vacid=$4 RETURNING *`,
-        [body.childid, body.vaccinationid, body.date,  req.params.id], (err, result) => {
+    pool.query(`UPDATE child_vac SET childid=$1,vaccinationid=$2, date=$3, syschangedatutc=$5 WHERE child_vacid=$4`,
+        [body.childid, body.vaccinationid, body.date, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
         })
 })
+
 
 //relation
 app.get('/relation', (req, res) => {
@@ -571,8 +788,8 @@ app.get('/relation/:id', (req, res) => {
 })
 app.post('/relation', (req, res) => {
     const body = req.body
-    pool.query("insert into relation ( legalrepid,childid,status, syscreatedatutc, syschangedatutc ) values ($1, $2, $3,$4,$5) RETURNING *",
-        [body.legalrepid, body.childid, body.status, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into relation ( legalrepid, childid, status ) values ($1, $2, $3)",
+        [body.legalrepid, body.childid, body.status], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -583,18 +800,27 @@ app.post('/relation', (req, res) => {
 app.delete('/relation/:id', (req, res) => {
     pool.query("DELETE FROM relation WHERE relationid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/relation/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE relation SET legalrepid=$1,childid=$2,status=$3 WHERE relationid=$4 RETURNING *`,
-        [body.legalrepid, body.childid, body.status, req.params.id], (err, result) => {
+    pool.query(`UPDATE relation SET legalrepid=$1,childid=$2,status=$3, syschangedatutc=$5 WHERE relationid=$4 RETURNING *`,
+        [body.legalrepid, body.childid, body.status, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -623,8 +849,8 @@ app.get('/contract/:id', (req, res) => {
 })
 app.post('/contract', (req, res) => {
     const body = req.body
-    pool.query("insert into contract ( number,date,legalrepid,childid, syscreatedatutc, syschangedatutc ) values ($1, $2, $3,$4,$5,$6) RETURNING *",
-        [body.number, body.date, body.legalrepid, body.childid, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into contract ( number, date, legalrepid, childid) values ($1, $2, $3,$4)",
+        [body.number, body.date, body.legalrepid, body.childid], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -635,18 +861,27 @@ app.post('/contract', (req, res) => {
 app.delete('/contract/:id', (req, res) => {
     pool.query("DELETE FROM contract WHERE contractid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/contract/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE contract SET number=$1,date=$2,legalrepid=$3,childid=$4 WHERE contractid=$5 RETURNING *`,
-        [body.number, body.date, body.legalrepid, body.childid, req.params.id], (err, result) => {
+    pool.query(`UPDATE contract SET number=$1, date=$2, legalrepid=$3, childid=$4, syschangedatutc=$6 WHERE contractid=$5`,
+        [body.number, body.date, body.legalrepid, body.childid, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -676,8 +911,8 @@ app.get('/subject_group/:id', (req, res) => {
 })
 app.post('/subject_group', (req, res) => {
     const body = req.body
-    pool.query("insert into subject_group ( subjectgroupname,description, syscreatedatutc, syschangedatutc ) values ($1, $2, $3,$4) RETURNING *",
-        [body.subjectgroupname, body.description, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into subject_group ( subjectgroupname, description ) values ($1, $2)",
+        [body.subjectgroupname, body.description], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -688,30 +923,34 @@ app.post('/subject_group', (req, res) => {
 app.delete('/subject_group/:id', (req, res) => {
     pool.query("DELETE FROM subject_group WHERE subject_groupid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/subject_group/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE subject_group SET subjectgroupname=$1,description=$2, WHERE subject_groupid=$3 RETURNING *`,
-        [body.subjectgroupname, body.description,  req.params.id], (err, result) => {
+    pool.query(`UPDATE subject_group SET subjectgroupname=$1,description=$2, syschangedatutc=$4 WHERE subject_groupid=$3`,
+        [body.subjectgroupname, body.description, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
         })
 })
 
-
-
-
-
 //subject
-
 app.get('/subject', (req, res) => {
     pool.query("SELECT * FROM subject", (err, result) => {
         if (!err) {
@@ -731,9 +970,10 @@ app.get('/subject/:id', (req, res) => {
     })
 })
 app.post('/subject', (req, res) => {
+    var newdate = `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
     const body = req.body
-    pool.query("insert into subject ( subjectname,subjectgroupid,duration,syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5) RETURNING *",
-        [body.subjectname, body.subjectgroupid, body.duration,  body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into subject ( subjectname, subjectgroupid, duration ) values ($1,$2,$3)",
+        [body.subjectname, body.subjectgroupid, newdate], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -744,77 +984,32 @@ app.post('/subject', (req, res) => {
 app.delete('/subject/:id', (req, res) => {
     pool.query("DELETE FROM subject WHERE subjectid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/subject/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE subject SET subjectname=$1,subjectgroupid=$2,duration=$3 WHERE subjectid=$4 RETURNING *`,
-        [body.subjectname, body.subjectgroupid, body.duration,  req.params.id], (err, result) => {
+    pool.query(`UPDATE subject SET subjectname=$1, subjectgroupid=$2, duration=$3, syschangedatutc=$5 WHERE subjectid=$4`,
+        [body.subjectname, body.subjectgroupid, body.duration, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
         })
 })
-
-
-//attendance
-
-app.get('/attendance', (req, res) => {
-    pool.query("SELECT * FROM attendance", (err, result) => {
-        if (!err) {
-            res.status(200).send(result.rows)
-        } else {
-            res.status(400).send(err)
-        }
-    })
-})
-app.get('/attendance/:id', (req, res) => {
-    pool.query("SELECT * FROM attendance where attendanceid=$1", [req.params.id], (err, result) => {
-        if (!err) {
-            res.status(200).send(result.rows)
-        } else {
-            res.status(400).send(err)
-        }
-    })
-})
-app.post('/attendance', (req, res) => {
-    const body = req.body
-    pool.query("insert into attendance ( date,childid,arrivaltime,leavingtime,excuseid,employeeid,syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
-        [body.date, body.childid, body.arrivaltime, body.leavingtime, body.excuseid, body.employeeid, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
-            if (!err) {
-                res.status(201).send("Created")
-            } else {
-                res.status(400).send(err)
-            }
-        })
-})
-app.delete('/attendance/:id', (req, res) => {
-    pool.query("DELETE FROM attendance WHERE attendanceid=$1", [req.params.id], (err, result) => {
-        if (!err) {
-            res.status(200).send("Deleted")
-        } else {
-            res.status(400).send(err)
-        }
-    })
-})
-app.put('/attendance/:id', (req, res) => {
-    const body = req.body
-    pool.query(`UPDATE attendance SET date=$1,childid=$2,arrivaltime=$3,leavingtime=$4,excuseid=$5,employeeid=$6 WHERE attendanceid=$7 RETURNING *`,
-        [body.date, body.childid, body.arrivaltime, body.leavingtime, body.excuseid, body.employeeid, req.params.id], (err, result) => {
-            if (!err) {
-                res.status(200).send("Updated")
-            } else {
-                res.status(400).send(err)
-            }
-        })
-})
-
 
 
 //excuse
@@ -838,8 +1033,8 @@ app.get('/excuse/:id', (req, res) => {
 })
 app.post('/excuse', (req, res) => {
     const body = req.body
-    pool.query("insert into excuse ( datestart,dateend,childid,daypart,reason,employeeid,syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
-        [body.datestart, body.dateend, body.childid, body.daypart, body.reason, body.employeeid, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into excuse ( datestart, dateend, childid, daypart, reason, employeeid) values ($1,$2,$3,$4,$5,$6) RETURNING *",
+        [body.datestart, body.dateend, body.childid, body.daypart, body.reason, body.employeeid], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -850,24 +1045,92 @@ app.post('/excuse', (req, res) => {
 app.delete('/excuse/:id', (req, res) => {
     pool.query("DELETE FROM excuse WHERE excuseid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/excuse/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE excuse SET datestart=$1,dateend=$2,childid=$3,daypart=$4,reason=$5,employeeid=$6 WHERE excuseid=$7 RETURNING *`,
-        [body.datestart, body.dateend, body.childid, body.daypart, body.reason, body.employeeid, req.params.id], (err, result) => {
+    pool.query(`UPDATE excuse SET datestart=$1, dateend=$2, childid=$3, daypart=$4, reason=$5, employeeid=$6, syschangedatutc=$8 WHERE excuseid=$7`,
+        [body.datestart, body.dateend, body.childid, body.daypart, body.reason, body.employeeid, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
         })
 })
 
+//attendance
+app.get('/attendance', (req, res) => {
+    pool.query("SELECT * FROM attendance", (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.get('/attendance/:id', (req, res) => {
+    pool.query("SELECT * FROM attendance where attendanceid=$1", [req.params.id], (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.post('/attendance', (req, res) => {
+    const body = req.body
+    pool.query("insert into attendance ( date,childid,arrivaltime,leavingtime,excuseid,employeeid) values ($1,$2,$3,$4,$5,$6) RETURNING *",
+        [body.date, body.childid, body.arrivaltime, body.leavingtime, body.excuseid, body.employeeid], (err, result) => {
+            if (!err) {
+                res.status(201).send("Created")
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
+app.delete('/attendance/:id', (req, res) => {
+    pool.query("DELETE FROM attendance WHERE attendanceid=$1", [req.params.id], (err, result) => {
+        if (!err) {
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.put('/attendance/:id', (req, res) => {
+    var datenew = new Date().toISOString()
+    const body = req.body
+    pool.query(`UPDATE attendance SET date=$1,childid=$2,arrivaltime=$3,leavingtime=$4,excuseid=$5,employeeid=$6, syschangedatutc=$8 WHERE attendanceid=$7 RETURNING *`,
+        [body.date, body.childid, body.arrivaltime, body.leavingtime, body.excuseid, body.employeeid, req.params.id, datenew], (err, result) => {
+            if (!err) {
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
 
 //skill_group
 app.get('/skill_group', (req, res) => {
@@ -890,8 +1153,8 @@ app.get('/skill_group/:id', (req, res) => {
 })
 app.post('/skill_group', (req, res) => {
     const body = req.body
-    pool.query("insert into skill_group ( subjectname,subjectgroupid,duration,syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5) RETURNING *",
-        [body.subjectname, body.subjectgroupid, body.duration, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into skill_group ( subjectname,subjectgroupid,duration) values ($1,$2,$3)",
+        [body.subjectname, body.subjectgroupid, body.duration], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -902,18 +1165,27 @@ app.post('/skill_group', (req, res) => {
 app.delete('/skill_group/:id', (req, res) => {
     pool.query("DELETE FROM skill_group WHERE skill_groupid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/skill_group/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE skill_group SET subjectname=$1,subjectgroupid=$2,duration=$3 WHERE skill_groupid=$4 RETURNING *`,
-        [body.subjectname, body.subjectgroupid, body.duration, req.params.id], (err, result) => {
+    pool.query(`UPDATE skill_group SET subjectname=$1,subjectgroupid=$2,duration=$3, syschangedatutc=$5 WHERE skill_groupid=$4`,
+        [body.subjectname, body.subjectgroupid, body.duration, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -943,8 +1215,8 @@ app.get('/skill/:id', (req, res) => {
 })
 app.post('/skill', (req, res) => {
     const body = req.body
-    pool.query("insert into skill ( skillname,skillgroupid,syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4) RETURNING *",
-        [body.skillname, body.skillgroupid,body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into skill ( skillname,skillgroupid) values ($1,$2) RETURNING *",
+        [body.skillname, body.skillgroupid], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -955,18 +1227,27 @@ app.post('/skill', (req, res) => {
 app.delete('/skill/:id', (req, res) => {
     pool.query("DELETE FROM skill WHERE skillid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/skill/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE skill SET skillname=$1,skillgroupid=$2 WHERE skillid=$3 RETURNING *`,
-        [body.skillname, body.skillgroupid,  req.params.id], (err, result) => {
+    pool.query(`UPDATE skill SET skillname=$1,skillgroupid=$2, syschangedatutc=$4 WHERE skillid=$3 RETURNING *`,
+        [body.skillname, body.skillgroupid, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -995,8 +1276,8 @@ app.get('/question/:id', (req, res) => {
 })
 app.post('/question', (req, res) => {
     const body = req.body
-    pool.query("insert into question ( question,answer,skillid, syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4) RETURNING *",
-        [body.question, body.answer,body.skillid,  body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into question ( question, answer, skillid ) values ($1,$2,$3)",
+        [body.question, body.answer, body.skillid], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -1007,25 +1288,32 @@ app.post('/question', (req, res) => {
 app.delete('/question/:id', (req, res) => {
     pool.query("DELETE FROM question WHERE questionid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/question/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE question SET question=$1,answer=$2,skillid=$3 WHERE questionid=$4 RETURNING *`,
-        [body.question, body.answer, body.skillid, req.params.id], (err, result) => {
+    pool.query(`UPDATE question SET question=$1,answer=$2,skillid=$3, syschangedatutc=$5 WHERE questionid=$4`,
+        [body.question, body.answer, body.skillid, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
         })
 })
-
-
 
 
 //test
@@ -1049,8 +1337,8 @@ app.get('/test/:id', (req, res) => {
 })
 app.post('/test', (req, res) => {
     const body = req.body
-    pool.query("insert into test ( testtitle,childid,questionid,date,score, syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5,$6,$7) RETURNING *",
-        [body.testtitle, body.childid, body.questionid, body.date, body.score, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into test ( testtitle, childid, questionid, date, score ) values ($1,$2,$3,$4,$5)",
+        [body.testtitle, body.childid, body.questionid, body.date, body.score], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -1061,18 +1349,27 @@ app.post('/test', (req, res) => {
 app.delete('/test/:id', (req, res) => {
     pool.query("DELETE FROM test WHERE testid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/test/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE test SET testtitle=$1,childid=$2,questionid=$3,date=$4,score=$5 WHERE testid=$6 RETURNING *`,
-        [body.testtitle, body.childid, body.questionid, body.date, body.score, req.params.id], (err, result) => {
+    pool.query(`UPDATE test SET testtitle=$1,childid=$2,questionid=$3,date=$4,score=$5, syschangedatutc=$7 WHERE testid=$6`,
+        [body.testtitle, body.childid, body.questionid, body.date, body.score, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -1102,8 +1399,8 @@ app.get('/timetable/:id', (req, res) => {
 })
 app.post('/timetable', (req, res) => {
     const body = req.body
-    pool.query("insert into timetable ( weekday,groupid,subjectid,start,end,employeeid,roomid, syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *",
-        [body.weekday, body.groupid, body.subjectid, body.start, body.end, body.employeeid, body.roomid, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into timetable ( weekday, groupid, subjectid, start, end, employeeid, roomid ) values ($1,$2,$3,$4,$5,$6,$7)",
+        [body.weekday, body.groupid, body.subjectid, body.start, body.end, body.employeeid, body.roomid], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -1114,18 +1411,27 @@ app.post('/timetable', (req, res) => {
 app.delete('/timetable/:id', (req, res) => {
     pool.query("DELETE FROM timetable WHERE timetableid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/timetable/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE timetable SET weekday=$1,groupid=$2,subjectid=$3,start=$4,end=$5,employeeid=$6,roomid=$7 WHERE timetableid=$8 RETURNING *`,
-        [body.weekday, body.groupid, body.subjectid, body.start, body.end, body.employeeid, body.roomid, req.params.id], (err, result) => {
+    pool.query(`UPDATE timetable SET weekday=$1,groupid=$2,subjectid=$3,start=$4,end=$5,employeeid=$6,roomid=$7, syschangedatutc=$8 WHERE timetableid=$8 RETURNING *`,
+        [body.weekday, body.groupid, body.subjectid, body.start, body.end, body.employeeid, body.roomid, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
@@ -1153,8 +1459,8 @@ app.get('/syllabus/:id', (req, res) => {
 })
 app.post('/syllabus', (req, res) => {
     const body = req.body
-    pool.query("insert into syllabus ( year,month,weeknumber,topic,subjectid,quantity,syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
-        [body.year, body.month, body.weeknumber, body.topic, body.subjectid, body.quantity, body.syscreatedatutc, body.syschangedatutc], (err, result) => {
+    pool.query("insert into syllabus ( year,month,weeknumber,topic,subjectid,quantity) values ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
+        [body.year, body.month, body.weeknumber, body.topic, body.subjectid, body.quantity], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -1165,18 +1471,27 @@ app.post('/syllabus', (req, res) => {
 app.delete('/syllabus/:id', (req, res) => {
     pool.query("DELETE FROM syllabus WHERE syllabusid=$1", [req.params.id], (err, result) => {
         if (!err) {
-            res.status(200).send("Deleted")
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
         } else {
             res.status(400).send(err)
         }
     })
 })
 app.put('/syllabus/:id', (req, res) => {
+    var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE syllabus SET year=$1,month=$2,weeknumber=$3,topic=$4,subjectid=$5,quantity=$6 WHERE timetableid=$7 RETURNING *`,
-        [body.year, body.month, body.weeknumber, body.topic, body.subjectid, body.quantity, req.params.id], (err, result) => {
+    pool.query(`UPDATE syllabus SET year=$1,month=$2,weeknumber=$3,topic=$4,subjectid=$5,quantity=$6, syschangedatutc=$8 WHERE timetableid=$7`,
+        [body.year, body.month, body.weeknumber, body.topic, body.subjectid, body.quantity, req.params.id, datenew], (err, result) => {
             if (!err) {
-                res.status(200).send("Updated")
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
             } else {
                 res.status(400).send(err)
             }
