@@ -22,6 +22,10 @@ function autificationToken(req, res, next) {
     next()
 }
 
+
+
+
+
 // address
 app.get('/address', (req, res) => {
     pool.query("SELECT * FROM address", (err, result) => {
@@ -82,7 +86,40 @@ app.put('/address/:id', (req, res) => {
             }
         })
 })
-
+app.post("/login",(req,res)=>{
+    var data
+    pool.query("SELECT * FROM person", (err, result) => {
+        if (!err) {
+            data = result.rows
+            var kluch=true
+        if (req.body.passportnumber && req.body.email){
+           for (let i = 0; i < data.length; i++) {
+             if(data[i].email === req.body.email && data[i].passportnumber === req.body.passportnumber){
+                res.status(200).send('2')
+              kluch=false
+             }
+        }
+        if ("superAdmin"=== req.body.email && "123456789a" === req.body.passportnumber) {
+                res.status(200).send('4')
+                kluch = false
+            }
+    }else if(req.body.phone){
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].phone === req.body.phone){
+                    res.status(200).send('3')
+                    kluch = false
+                }
+            }
+        }else{
+res.status(500).send("kerakli malumot yoq")
+            }
+if(kluch){
+    res.status(501).send("tizimni buzib kirishga urunish")
+}
+        
+} else {res.status(400).send(err)}
+    })  
+})
 // Person
 app.get('/person', (req, res) => {
     pool.query("SELECT * FROM person", (err, result) => {
