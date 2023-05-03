@@ -394,8 +394,7 @@ app.get('/employee', (req, res) => {
         } else {
             res.status(400).send(err)
         }
-    })
-})
+    })})
 app.get('/employee/:id', (req, res) => {
     pool.query("SELECT * FROM employee1 where employeeid=$1", [req.params.id], (err, result) => {
         if (!err) {
@@ -403,11 +402,10 @@ app.get('/employee/:id', (req, res) => {
         } else {
             res.status(400).send(err)
         }
-    })
-})
+    })})
 app.post('/employee', (req, res) => {
     const body = req.body
-    pool.query(`insert into employee1 ( personid, positionid, laborid, hiredate, dismissaldate, medical_cert, education) values ($1, $2, $3,$4,$5,$6, $7)`,
+    pool.query(`insert into employee ( personid, positionid, laborid, hiredate, dismissaldate, medical_cert, education) values ($1, $2, $3,$4,$5,$6, $7)`,
         [body.personid, body.positionid, body.laborid, body.hiredate, body.dismissaldate, body.medical_cert, body.education], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
@@ -417,7 +415,7 @@ app.post('/employee', (req, res) => {
         })
 })
 app.delete('/employee/:id', (req, res) => {
-    pool.query("DELETE FROM employee1 WHERE employeeid=$1", [req.params.id], (err, result) => {
+    pool.query("DELETE FROM employee WHERE employeeid=$1", [req.params.id], (err, result) => {
         if (!err) {
             if (result.rowCount === 1) {
                 res.status(200).send("Deleted")
@@ -432,7 +430,7 @@ app.delete('/employee/:id', (req, res) => {
 app.put('/employee/:id', (req, res) => {
     var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE employee1 SET personid=$1, positionid=$2, laborid=$3, hiredate=$4, dismissaldate=$5, medical_nert=$6, education=$7, syschangedatutc=$9 WHERE employeeid=$8`,
+    pool.query(`UPDATE employee SET personid=$1, positionid=$2, laborid=$3, hiredate=$4, dismissaldate=$5, medical_nert=$6, education=$7, syschangedatutc=$9 WHERE employeeid=$8`,
         [body.personid, body.positionid, body.laborid, body.hiredate, body.dismissaldate, body.medical_nert, body.education, req.params.id, datenew], (err, result) => {
             if (!err) {
                 if (result.rowCount === 1) {

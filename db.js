@@ -10,9 +10,9 @@ const { Pool } = require("pg")
 
 const pool = new Pool({
     user: 'postgres',
-    password: "OmEKxMvLtd4glG3nCb9x",
-    host: "containers-us-west-155.railway.app",
-    port: 7026,
+    password: "sg68CdZdMIRdY997F9uO",
+    host: "containers-us-west-38.railway.app",
+    port: 7140,
     database: "railway"
 })
 
