@@ -388,7 +388,7 @@ app.put('/labor/:id', (req, res) => {
 
 // employee
 app.get('/employee', (req, res) => {
-    pool.query("SELECT * FROM employee1", (err, result) => {
+    pool.query("SELECT * FROM employee", (err, result) => {
         if (!err) {
             res.status(200).send(result.rows)
         } else {
@@ -396,7 +396,7 @@ app.get('/employee', (req, res) => {
         }
     })})
 app.get('/employee/:id', (req, res) => {
-    pool.query("SELECT * FROM employee1 where employeeid=$1", [req.params.id], (err, result) => {
+    pool.query("SELECT * FROM employee where employeeid=$1", [req.params.id], (err, result) => {
         if (!err) {
             res.status(200).send(result.rows)
         } else {
