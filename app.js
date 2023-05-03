@@ -336,6 +336,15 @@ app.get('/labor/:id', (req, res) => {
         }
     })
 })
+app.get('/labor/title/:id', (req, res) => {
+    pool.query("SELECT * FROM labor where laborname=$1", [req.params.id], (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
 app.post('/labor', (req, res) => {
     const body = req.body
     pool.query("insert into labor ( laborname ) values ($1)",
@@ -398,8 +407,8 @@ app.get('/employee/:id', (req, res) => {
 })
 app.post('/employee', (req, res) => {
     const body = req.body
-    pool.query(`insert into employee ( personid, positionid, laborid, hiredate, dismissaldate, medical_nert, education ) values ($1, $2, $3,$4,$5,$6, $7)`,
-        [body.personid, body.positionid, body.laborid, body.hiredate, body.dismissaldate, body.medical_nert, body.education], (err, result) => {
+    pool.query(`insert into employee1 ( personid, positionid, laborid, hiredate, dismissaldate, medical_cert, education) values ($1, $2, $3,$4,$5,$6, $7)`,
+        [body.personid, body.positionid, body.laborid, body.hiredate, body.dismissaldate, body.medical_cert, body.education], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {

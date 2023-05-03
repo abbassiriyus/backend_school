@@ -4,7 +4,7 @@ CREATE TABLE "address" (
 "city" VARCHAR(50) NOT NULL,
 "street" VARCHAR(50) NOT NULL,
 "house" VARCHAR(7) NOT NULL,
-"building" CHAR(3) NULL,
+"building" VARCHAR(3) NULL,
 "flat" SMALLINT NULL,
 "syscreatedatutc" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
 "syschangedatutc" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp
@@ -51,16 +51,16 @@ CREATE TABLE "labor" (
 "syschangedatutc" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE employee(
-employeeid SERIAL NOT NULL PRIMARY KEY,
-personid INTEGER NOT NULL,
-positionid INTEGER NOT NULL,
-laborid INTEGER NOT NULL,
-hiredate DATE NOT NULL,
-dismissaldate DATE,
-medical_Ñert DATE NOT NULL,
-education VARCHAR(50) NOT NULL,
-photo BYTEA,
+CREATE TABLE employee1(
+"employeeid" SERIAL NOT NULL PRIMARY KEY,
+"personid" INTEGER NOT NULL,
+"positionid" INTEGER NOT NULL,
+"laborid" INTEGER NOT NULL,
+"hiredate" DATE NOT NULL,
+"dismissaldate" DATE,
+"medical_cert" DATE NOT NULL,
+"education" VARCHAR (50) NOT NULL,
+"photo" BYTEA,
 syscreatedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 CONSTRAINT fk_person FOREIGN KEY (personid) REFERENCES person(personid),
