@@ -1,6 +1,7 @@
 require("dotenv").config()
 var express = require('express');
 var app = express();
+var fs =require('fs')
 var cors = require('cors')
 const upload = require("express-fileupload")
 const pool = require("./db")
@@ -1300,6 +1301,64 @@ app.put('/skill/:id', (req, res) => {
 
 
 //question
+// app.get('/question', (req, res) => {
+//     pool.query("SELECT * FROM question", (err, result) => {
+//         if (!err) {
+//             res.status(200).send(result.rows)
+//         } else {
+//             res.status(400).send(err)
+//         }
+//     })
+// })
+// app.get('/question/:id', (req, res) => {
+//     pool.query("SELECT * FROM question where questionid=$1", [req.params.id], (err, result) => {
+//         if (!err) {
+//             res.status(200).send(result.rows)
+//         } else {
+//             res.status(400).send(err)
+//         }
+//     })
+// })
+// app.post('/question', (req, res) => {
+//     const body = req.body
+//     pool.query("insert into question ( question, answer, skillid ) values ($1,$2,$3)",
+//         [body.question, body.answer, body.skillid], (err, result) => {
+//             if (!err) {
+//                 res.status(201).send("Created")
+//             } else {
+//                 res.status(400).send(err)
+//             }
+//         })
+// })
+// app.delete('/question/:id', (req, res) => {
+//     pool.query("DELETE FROM question WHERE questionid=$1", [req.params.id], (err, result) => {
+//         if (!err) {
+//             if (result.rowCount === 1) {
+//                 res.status(200).send("Deleted")
+//             } else {
+//                 res.status(400).send("Id not found")
+//             }
+//         } else {
+//             res.status(400).send(err)
+//         }
+//     })
+// })
+// app.put('/question/:id', (req, res) => {
+//     var datenew = new Date().toISOString()
+//     const body = req.body
+//     pool.query(`UPDATE question SET question=$1,answer=$2,skillid=$3, syschangedatutc=$5 WHERE questionid=$4`,
+//         [body.question, body.answer, body.skillid, req.params.id, datenew], (err, result) => {
+//             if (!err) {
+//                 if (result.rowCount === 1) {
+//                     res.status(200).send("Updated")
+//                 } else {
+//                     res.status(400).send("Id not found")
+//                 }
+//             } else {
+//                 res.status(400).send(err)
+//             }
+//         })
+// })
 app.get('/question', (req, res) => {
     pool.query("SELECT * FROM question", (err, result) => {
         if (!err) {
@@ -1320,8 +1379,13 @@ app.get('/question/:id', (req, res) => {
 })
 app.post('/question', (req, res) => {
     const body = req.body
-    pool.query("insert into question ( question, answer, skillid ) values ($1,$2,$3)",
-        [body.question, body.answer, body.skillid], (err, result) => {
+    var datenew = new Date().toISOString()
+    const { question_img } = req.files;
+    var rendom = Math.floor(Math.random() * 10000000);
+    var img2 = rendom + question_img.name.slice(question_img.name.lastIndexOf('.'));
+    question_img.mv(__dirname + '/public/' + img2);
+    pool.query("insert into question (question, question_img, answer, skillid,syscreatedatutc, syschangedatutc) values ($1, $2, $3, $4,$5,$6)",
+        [body.question,img2,body.answer,body.skillid,datenew,datenew], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -1330,9 +1394,28 @@ app.post('/question', (req, res) => {
         })
 })
 app.delete('/question/:id', (req, res) => {
+    pool.query("SELECT * FROM question where questionid=$1", [req.params.id], (err, result) => {
+      if (result.rows.length>0) {
+        if (!err) {
+            fs.unlink(`./public/${result.rows[0].question_img}`, function (err) {
+                if (err && err.code == 'ENOENT') {
+                    console.info("File doesn't exist, won't remove it.");
+                } else if (err) {
+                    console.error("Error occurred while trying to remove file");
+                } else {
+                    console.info(`removed`);
+                }
+            });
+        } else {
+            res.status(400).send(err)
+        }
+      }
+    })
+
     pool.query("DELETE FROM question WHERE questionid=$1", [req.params.id], (err, result) => {
         if (!err) {
             if (result.rowCount === 1) {
+              
                 res.status(200).send("Deleted")
             } else {
                 res.status(400).send("Id not found")
@@ -1343,10 +1426,38 @@ app.delete('/question/:id', (req, res) => {
     })
 })
 app.put('/question/:id', (req, res) => {
+
+    pool.query("SELECT * FROM question where questionid=$1", [req.params.id], (err, result) => {
+        const { question_img }=req.files
+        if (result.rows.length>0) {
+          if (!err){
+              question_img.mv(__dirname + '/public/' + result.rows[0].question_img);
+          } else {
+              res.status(400).send(err)
+          }
+        }
+      })
     var datenew = new Date().toISOString()
+    pool.query("SELECT * FROM question where questionid=$1", [req.params.id], (err, result) => {
+        if (result.rows.length>0) {
+          if (!err) {
+              fs.unlink(`./public/${result.rows[0].question_img}`, function (err) {
+                  if (err && err.code == 'ENOENT') {
+                      console.info("File doesn't exist, won't remove it.");
+                  } else if (err) {
+                      console.error("Error occurred while trying to remove file");
+                  } else {
+                      console.info(`removed`);
+                  }
+              });
+          } else {
+              res.status(400).send(err)
+          }
+        }
+      })
     const body = req.body
-    pool.query(`UPDATE question SET question=$1,answer=$2,skillid=$3, syschangedatutc=$5 WHERE questionid=$4`,
-        [body.question, body.answer, body.skillid, req.params.id, datenew], (err, result) => {
+    pool.query(`UPDATE question SET question=$1,  answer=$3, skillid=$4,  syschangedatutc=$5 WHERE questionid=$2`,
+        [body.question, req.params.id,body.answer,body.skillid, datenew], (err, result) => {
             if (!err) {
                 if (result.rowCount === 1) {
                     res.status(200).send("Updated")
@@ -1358,7 +1469,6 @@ app.put('/question/:id', (req, res) => {
             }
         })
 })
-
 
 //test
 app.get('/test', (req, res) => {

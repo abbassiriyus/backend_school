@@ -5,14 +5,14 @@ const { Pool } = require("pg")
 //     password: "abbas123",
 //     host: "localhost",
 //     port: 5432,
-//      database: "Kindergarten_DB"
+//      database: "school"
 // }) 
 
 const pool = new Pool({
     user: 'postgres',
-    password: "sg68CdZdMIRdY997F9uO",
-    host: "containers-us-west-38.railway.app",
-    port: 7140,
+    password: "PWi6OPoEo6wBbCMMegDC",
+    host: "containers-us-west-77.railway.app",
+    port: 5532,
     database: "railway"
 })
 
