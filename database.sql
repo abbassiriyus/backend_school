@@ -20,7 +20,7 @@ gender CHAR(1) NOT NULL,
 passportseries CHAR(4) NOT NULL,
 passportnumber CHAR(6) NOT NULL,
 passportdate DATE NOT NULL,
-phone VARCHAR(13) NOT NULL,
+phone VARCHAR(30) NOT NULL,
 email VARCHAR(255) NOT NULL,
 addressid INTEGER NOT NULL,
 syscreatedatutc TIMESTAMP(3) DEFAULT NOW() NOT NULL,
@@ -245,7 +245,7 @@ CONSTRAINT "fk_question" FOREIGN KEY ("questionid") REFERENCES "question" ("ques
 
 CREATE TABLE "timetable" (
 "timetableid" SERIAL PRIMARY KEY,
-"weekday" VARCHAR (11) NOT NULL,
+"weekday" VARCHAR(11) NOT NULL,
 "groupid" INTEGER NOT NULL,
 "subjectid" INTEGER NOT NULL,
 "start" TIMESTAMP NOT NULL,
