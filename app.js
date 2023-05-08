@@ -1553,8 +1553,9 @@ app.get('/timetable/:id', (req, res) => {
 })
 app.post('/timetable', (req, res) => {
     const body = req.body
-    pool.query("insert into timetable ( weekday, groupid, subjectid, start, end, employeeid, roomid ) values ($1,$2,$3,$4,$5,$6,$7)",
-        [body.weekday, body.groupid, body.subjectid, body.start, body.end, body.employeeid, body.roomid], (err, result) => {
+    var datenew = new Date().toISOString()
+    pool.query("insert into timetable ( weekday, groupid, subjectid, start, end, employeeid, roomid,syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+        [body.weekday, body.groupid, body.subjectid, body.start, body.end, body.employeeid, body.roomid,datenew,datenew], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
