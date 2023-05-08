@@ -1198,8 +1198,8 @@ app.get('/skill_group/:id', (req, res) => {
 })
 app.post('/skill_group', (req, res) => {
     const body = req.body
-    pool.query("insert into skill_group ( skillgroupname) values ($1,$2,$3)",
-        [body.skillgroupname,], (err, result) => {
+    pool.query("insert into skill_group ( skillgroupname) values ($1)",
+        [body.skillgroupname], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
