@@ -1198,8 +1198,8 @@ app.get('/skill_group/:id', (req, res) => {
 })
 app.post('/skill_group', (req, res) => {
     const body = req.body
-    pool.query("insert into skill_group ( subjectname,subjectgroupid,duration) values ($1,$2,$3)",
-        [body.subjectname, body.subjectgroupid, body.duration], (err, result) => {
+    pool.query("insert into skill_group ( skillgroupname) values ($1,$2,$3)",
+        [body.skillgroupname,], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -1223,8 +1223,8 @@ app.delete('/skill_group/:id', (req, res) => {
 app.put('/skill_group/:id', (req, res) => {
     var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE skill_group SET subjectname=$1,subjectgroupid=$2,duration=$3, syschangedatutc=$5 WHERE skill_groupid=$4`,
-        [body.subjectname, body.subjectgroupid, body.duration, req.params.id, datenew], (err, result) => {
+    pool.query(`UPDATE skill_group SET skillgroupname=$1, syschangedatutc=$3 WHERE skill_groupid=$2`,
+        [body.subjectname,req.params.id, datenew], (err, result) => {
             if (!err) {
                 if (result.rowCount === 1) {
                     res.status(200).send("Updated")
@@ -1579,8 +1579,8 @@ app.delete('/timetable/:id', (req, res) => {
 app.put('/timetable/:id', (req, res) => {
     var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE timetable SET weekday=$1,groupid=$2,subjectid=$3,start=$4,end=$5,employeeid=$6,roomid=$7, syschangedatutc=$8 WHERE timetableid=$8 RETURNING *`,
-        [body.weekday, body.groupid, body.subjectid, body.start, body.end, body.employeeid, body.roomid, req.params.id, datenew], (err, result) => {
+    pool.query(`UPDATE timetable SET weekday=$1,groupid=$2,subjectid=$3,begining=$4,finishing=$5,employeeid=$6,roomid=$7, syschangedatutc=$8 WHERE timetableid=$8 RETURNING *`,
+        [body.weekday, body.groupid, body.subjectid, body.begining, body.finishing, body.employeeid, body.roomid, req.params.id, datenew], (err, result) => {
             if (!err) {
                 if (result.rowCount === 1) {
                     res.status(200).send("Updated")
