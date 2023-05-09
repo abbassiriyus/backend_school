@@ -1296,7 +1296,7 @@ app.post('/question', (req, res) => {
     var img2 = rendom + question_img.name.slice(question_img.name.lastIndexOf('.'));
     question_img.mv(__dirname + '/public/' + img2);
     pool.query("insert into question (question, question_img, answer, skillid,author,month,syscreatedatutc, syschangedatutc) values ($1, $2, $3, $4,$5,$6,$7,$8)",
-        [body.question,img2,body.answer,body.skillid,body.author,body.month,datenew], (err, result) => {
+        [body.question,img2,body.answer,body.skillid,body.author,body.month,datenew,datenew], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
