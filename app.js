@@ -8,7 +8,7 @@ const upload = require("express-fileupload")
 const pool = require("./db")
 const PORT = process.env.PORT || 5000
 app.use(cors())
-// app.use(upload())
+app.use(upload())
 app.use(express.static('./public'))
 const jwt = require('jsonwebtoken');
 
