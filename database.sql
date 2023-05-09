@@ -223,6 +223,8 @@ CREATE TABLE "question" (
 "question" TEXT NOT NULL,
 "question_img" TEXT NOT NULL,
 "answer" integer NOT NULL,
+"author" text NOT NULL,
+"month" TEXT NOT NULL,
 "skillid" integer NOT NULL,
 "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 "syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
