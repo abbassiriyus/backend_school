@@ -1,16 +1,18 @@
 require("dotenv").config()
 var express = require('express');
 var app = express();
+
 var fs =require('fs')
 var cors = require('cors')
 const upload = require("express-fileupload")
 const pool = require("./db")
 const PORT = process.env.PORT || 5000
 app.use(cors())
-app.use(upload())
-
+// app.use(upload())
+app.use(express.static('./public'))
 const jwt = require('jsonwebtoken');
-const e = require('express');
+
+
 const TOKEN = '69c65fbc9aeea59efdd9d8e04133485a09ffd78a70aff5700ed1a4b3db52d33392d67f12c1'
 
 function autificationToken(req, res, next) {

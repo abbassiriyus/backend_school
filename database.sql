@@ -281,3 +281,4 @@ ALTER TABLE legal_rep ADD CONSTRAINT fk_lr_person FOREIGN KEY (personid) REFEREN
 ALTER TABLE person ADD CONSTRAINT uq_passport UNIQUE (passportseries, passportnumber, passportdate);
 ALTER TABLE attendance ALTER COLUMN date SET DEFAULT CURRENT_DATE;
 ALTER TABLE attendance ADD CONSTRAINT fk_excuse FOREIGN KEY (excuseid) REFERENCES excuse(excuseid);
+
