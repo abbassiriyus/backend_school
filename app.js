@@ -1467,8 +1467,8 @@ app.get('/timetable/:id', (req, res) => {
 app.post('/timetable', (req, res) => {
     const body = req.body
     var datenew = new Date().toISOString()
-    pool.query("insert into timetable( weekday, groupid, subjectid, begining, finishing, employeeid, roomid,syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)",
-        [body.weekday, body.groupid, body.subjectid, body.begining, body.finishing, body.employeeid, body.roomid,datenew,datenew], (err, result) => {
+    pool.query("insert into timetable( weekday, groupid, subjectid, begining, finishing, employeeid, roomid,day,syscreatedatutc, syschangedatutc ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,10$)",
+        [body.weekday, body.groupid, body.subjectid, body.begining, body.finishing, body.employeeid, body.roomid,body.day,datenew,datenew], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -1492,8 +1492,8 @@ app.delete('/timetable/:id', (req, res) => {
 app.put('/timetable/:id', (req, res) => {
     var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE timetable SET weekday=$1,groupid=$2,subjectid=$3,begining=$4,finishing=$5,employeeid=$6,roomid=$7, syschangedatutc=$8 WHERE timetableid=$8 RETURNING *`,
-        [body.weekday, body.groupid, body.subjectid, body.begining, body.finishing, body.employeeid, body.roomid, req.params.id, datenew], (err, result) => {
+    pool.query(`UPDATE timetable SET weekday=$1,groupid=$2,subjectid=$3,begining=$4,finishing=$5,employeeid=$6,roomid=$7, day=$8, syschangedatutc=$9 WHERE timetableid=$10 RETURNING *`,
+        [body.weekday, body.groupid, body.subjectid, body.begining, body.finishing, body.employeeid, body.roomid,body.day, req.params.id, datenew], (err, result) => {
             if (!err) {
                 if (result.rowCount === 1) {
                     res.status(200).send("Updated")
