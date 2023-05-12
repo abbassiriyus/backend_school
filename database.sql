@@ -169,7 +169,7 @@ CREATE TABLE subject (
 subjectid SERIAL PRIMARY KEY,
 subjectname VARCHAR(100) NOT NULL,
 subjectgroupid INT NOT NULL,
-duration TIME NOT NULL,
+duration integer NOT NULL,
 syscreatedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 syschangedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 CONSTRAINT fk_subjectgroup FOREIGN KEY (subjectgroupid) REFERENCES subject_group (subject_groupid)
