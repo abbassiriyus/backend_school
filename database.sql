@@ -178,9 +178,9 @@ CREATE TABLE attendance (
 attendanceid SERIAL PRIMARY KEY,
 date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
 childid INTEGER NOT NULL,
-arrivaltime TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-leavingtime TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-excuseid INTEGER NULL,
+arrivaltime TIMESTAMP,
+leavingtime TIMESTAMP ,
+excuseid INTEGER,
 employeeid INTEGER NOT NULL,
 syscreatedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
 syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -276,6 +276,15 @@ syschangedatutc TIMESTAMP DEFAULT NOW() NOT NULL,
 FOREIGN KEY (subjectid) REFERENCES subject(subjectid)
 );
 
+create table syllabu (
+    "syllabuid" SERIAL PRIMARY KEY,
+    "subjectid" integer NOT NULL,
+    "winterparty" integer  not null,
+     "winterles" integer  not null,
+    "mountain" integer  not null,
+    "animal" integer  not null,
+    FOREIGN KEY (subjectid) REFERENCES subject(subjectid)
+)
 
 ALTER TABLE legal_rep ADD CONSTRAINT fk_lr_person FOREIGN KEY (personid) REFERENCES person(personid);
 

@@ -1565,6 +1565,65 @@ app.put('/syllabus/:id', (req, res) => {
             }
         })
 })
+app.get('/syllabu', (req, res) => {
+    pool.query("SELECT * FROM syllabu", (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.get('/syllabu/:id', (req, res) => {
+    pool.query("SELECT * FROM syllabu where syllabuid=$1", [req.params.id], (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.post('/syllabu', (req, res) => {
+    const body = req.body
+    pool.query("insert into syllabu ( subjectid,winterparty,winterles,mountain,animal) values ($1,$2,$3,$4,$5) RETURNING *",
+        [body.subjectid, body.winterparty, body.winterles, body.mountain, body.animal], (err, result) => {
+            if (!err) {
+                res.status(201).send("Created")
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
+app.delete('/syllabu/:id', (req, res) => {
+    pool.query("DELETE FROM syllabu WHERE syllabuid=$1", [req.params.id], (err, result) => {
+        if (!err) {
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.put('/syllabu/:id', (req, res) => {
+    var datenew = new Date().toISOString()
+    const body = req.body
+    pool.query(`UPDATE syllabu SET subjectid=$1,winterparty=$2,winterles=$3,mountain=$4,animal=$5, WHERE timetableid=$6`,
+        [body.subjectid, body.winterparty, body.winterles, body.mountain, body.animal, req.params.id], (err, result) => {
+            if (!err) {
+                if (result.rowCount === 1) {
+                    res.status(200).send("Updated")
+                } else {
+                    res.status(400).send("Id not found")
+                }
+            } else {
+                res.status(400).send(err)
+            }
+        })
+})
+
 
 
 
