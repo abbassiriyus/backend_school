@@ -988,8 +988,8 @@ app.get('/subject/:id', (req, res) => {
 app.post('/subject', (req, res) => {
     var newdate = `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
     const body = req.body
-    pool.query("insert into subject ( subjectname, subjectgroupid, duration ) values ($1,$2,$3)",
-        [body.subjectname, body.subjectgroupid, newdate], (err, result) => {
+    pool.query("insert into subject ( subjectname, subjectgroupid,topic, duration ) values ($1,$2,$3,$4)",
+        [body.subjectname, body.subjectgroupid, body.topic, newdate], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
@@ -1013,8 +1013,8 @@ app.delete('/subject/:id', (req, res) => {
 app.put('/subject/:id', (req, res) => {
     var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE subject SET subjectname=$1, subjectgroupid=$2, duration=$3, syschangedatutc=$5 WHERE subjectid=$4`,
-        [body.subjectname, body.subjectgroupid, body.duration, req.params.id, datenew], (err, result) => {
+    pool.query(`UPDATE subject SET subjectname=$1, subjectgroupid=$2, duration=$3,topic=$5 syschangedatutc=$6 WHERE subjectid=$4`,
+        [body.subjectname, body.subjectgroupid, body.duration, body.topic, req.params.id, datenew], (err, result) => {
             if (!err) {
                 if (result.rowCount === 1) {
                     res.status(200).send("Updated")
