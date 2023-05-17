@@ -179,8 +179,8 @@ CREATE TABLE attendance (
 attendanceid SERIAL PRIMARY KEY,
 date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
 childid INTEGER NOT NULL,
-arrivaltime TIMESTAMP,
-leavingtime TIMESTAMP ,
+arrivaltime varchar(12),
+leavingtime varchar(12),
 excuseid INTEGER,
 employeeid INTEGER NOT NULL,
 syscreatedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -230,7 +230,15 @@ CREATE TABLE "question" (
 "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 "syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 CONSTRAINT "pk_question" PRIMARY KEY ("questionid")
-);
+); 
+CREATE TABLE "contact" (
+"contactid" serial NOT NULL, 
+"fullname" TEXT NOT NULL,
+"phone" TEXT NOT NULL,
+"email" TEXT NOT NULL,
+"syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+"syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+); 
 
 CREATE TABLE "test" (
 "testid" serial NOT NULL,

@@ -6,7 +6,7 @@ var fs =require('fs')
 var cors = require('cors')
 const upload = require("express-fileupload")
 const pool = require("./db")
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 6000
 app.use(cors())
 app.use(upload())
 app.use(express.static('./public'))
@@ -89,6 +89,42 @@ app.put('/address/:id', (req, res) => {
             }
         })
 })
+
+app.get('/contact', (req, res) => {
+    pool.query("SELECT * FROM contact", (err, result) => {
+        if (!err) {
+            res.status(200).send(result.rows)
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+app.post('/contact', (req, res) => {
+    const body = req.body
+    pool.query("insert into contact (fullname, phone, email) values ($1, $2, $3)",
+        [body.fullname, body.phone, body.email], (err, result) => {
+            if (!err) {
+                res.status(201).send("Created")
+            } else {
+                res.status(400).send(err)
+            }
+        })
+    // insert into address(region, city, street, house, building, flat) values('Ñàðàòîâñêàÿ îáëàñòü', 'Ñàðàòîâ', 'Ïðîñïåêò èì.Ñòîëûïèíà', 5, null, 1)
+})
+app.delete('/contact/:id', (req, res) => {
+    pool.query("DELETE FROM contact WHERE contactid=$1", [req.params.id], (err, result) => {
+        if (!err) {
+            if (result.rowCount === 1) {
+                res.status(200).send("Deleted")
+            } else {
+                res.status(400).send("Id not found")
+            }
+        } else {
+            res.status(400).send(err)
+        }
+    })
+})
+// login
 app.post("/login",(req,res)=>{
     var data
     pool.query("SELECT * FROM person", (err, result) => {
