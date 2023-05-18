@@ -24,8 +24,7 @@ phone VARCHAR(30) NOT NULL,
 email VARCHAR(255) NOT NULL,
 addressid INTEGER NOT NULL,
 syscreatedatutc TIMESTAMP(3) DEFAULT NOW() NOT NULL,
-syschangedatutc TIMESTAMP(3) DEFAULT NOW() NOT NULL,
-FOREIGN KEY (addressid) REFERENCES address (addressid)
+syschangedatutc TIMESTAMP(3) DEFAULT NOW() NOT NULL
 );
 
 
@@ -62,10 +61,8 @@ CREATE TABLE employee(
 "education" VARCHAR (50) NOT NULL,
 "photo" BYTEA,
 syscreatedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-CONSTRAINT fk_person FOREIGN KEY (personid) REFERENCES person(personid),
-CONSTRAINT fk_position FOREIGN KEY (positionid) REFERENCES position(positionid),
-CONSTRAINT fk_labor FOREIGN KEY (laborid) REFERENCES labor(laborid)
+syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+
 );
 
 CREATE TABLE "room" ( "roomid" serial NOT NULL, "roomnumber" smallint NOT NULL, "floor" smallint NOT NULL, "square" numeric(5,2) NOT NULL, "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "pk_room" PRIMARY KEY ("roomid") ); CREATE TABLE "age" ( "ageid" serial NOT NULL, "categoryage" varchar(3) NOT NULL, "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "pk_age" PRIMARY KEY ("ageid") );
@@ -82,9 +79,7 @@ CREATE TABLE "group_emp" (
 "groupid" integer not null,
 "syscreatedatutc" timestamp(3) not null default (now()),
 "syschangedatutc" timestamp(3) not null default (now()),
-primary key ("groupid", "employeeid"),
-foreign key ("groupid") references "group" ("groupid"),
-foreign key ("employeeid") references "employee" ("employeeid")
+primary key ("groupid", "employeeid")
 );
 
 CREATE TABLE "child"(
@@ -107,9 +102,7 @@ CREATE TABLE "child"(
 "photo" bytea,
 "comment" varchar(2000), 
 "syscreatedatutc" timestamp default current_timestamp not null,
-"syschangedatutc" timestamp default current_timestamp not null,
-constraint "fk_chid_address" foreign key ("addressid") references "address" ("addressid"),
-constraint "fk_group" foreign key ("groupid") references "group" ("groupid")
+"syschangedatutc" timestamp default current_timestamp not null
 );
 
 CREATE SEQUENCE seq_vaccination START WITH 1 INCREMENT BY 1;
@@ -129,9 +122,8 @@ vaccinationid INT NOT NULL,
 date DATE NOT NULL,
 syscreatedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 syschangedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-PRIMARY KEY (child_vacid),
-FOREIGN KEY (childid) REFERENCES child(childid),
-FOREIGN KEY (vaccinationid) REFERENCES vaccination(vaccinationid)
+PRIMARY KEY (child_vacid)
+
 );
 
 create table "relation" (
@@ -140,9 +132,8 @@ create table "relation" (
 "childid" integer not null,
 "status" varchar(10) not null,
 "syscreatedatutc" timestamp default current_timestamp not null,
-"syschangedatutc" timestamp default current_timestamp not null,
-foreign key ("childid") references "child" ("childid"),
-foreign key ("legalrepid") references "legal_rep" ("legalrepid")
+"syschangedatutc" timestamp default current_timestamp not null
+
 );
 
 create table "contract" (
@@ -152,9 +143,8 @@ create table "contract" (
 "legalrepid" integer not null,
 "childid" integer not null,
 "syscreatedatutc" timestamp default current_timestamp not null,
-"syschangedatutc" timestamp default current_timestamp not null,
-foreign key ("childid") references "child" ("childid"),
-foreign key ("legalrepid") references "legal_rep" ("legalrepid")
+"syschangedatutc" timestamp default current_timestamp not null
+
 );
 
 CREATE TABLE subject_group (
@@ -172,8 +162,8 @@ subjectgroupid INT NOT NULL,
 topic  TEXT not NULL,
 duration integer NOT NULL,
 syscreatedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-syschangedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-CONSTRAINT fk_subjectgroup FOREIGN KEY (subjectgroupid) REFERENCES subject_group (subject_groupid)
+syschangedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+
 );
 CREATE TABLE attendance (
 attendanceid SERIAL PRIMARY KEY,
@@ -184,9 +174,7 @@ leavingtime varchar(12),
 excuseid INTEGER,
 employeeid INTEGER NOT NULL,
 syscreatedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-CONSTRAINT fk_employee_att FOREIGN KEY (employeeid) REFERENCES employee (employeeid),
-CONSTRAINT fk_child_att FOREIGN KEY (childid) REFERENCES child (childid)
+syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 CREATE TABLE excuse (
@@ -198,9 +186,8 @@ daypart VARCHAR(50) NOT NULL,
 reason VARCHAR(50) NOT NULL,
 employeeid INTEGER NOT NULL,
 syscreatedatutc TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-syschangedatutc TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-CONSTRAINT fk_employee_exs FOREIGN KEY (employeeid) REFERENCES employee (employeeid),
-CONSTRAINT fk_child_exs FOREIGN KEY (childid) REFERENCES child (childid)
+syschangedatutc TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+
 );
 
 CREATE TABLE skill_group (
@@ -215,9 +202,8 @@ skillid SERIAL PRIMARY KEY,
 skillname VARCHAR(100) NOT NULL,
 skillgroupid INT NOT NULL,
 syscreatedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-syschangedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-CONSTRAINT fk_skillgroup FOREIGN KEY (skillgroupid)
-REFERENCES skill_group (skillgroupid)
+syschangedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+
 );
 CREATE TABLE "question" (
 "questionid" serial NOT NULL,
@@ -228,17 +214,10 @@ CREATE TABLE "question" (
 "month" TEXT NOT NULL,
 "skillid" integer NOT NULL,
 "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-"syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-CONSTRAINT "pk_question" PRIMARY KEY ("questionid")
-); 
-CREATE TABLE "contact" (
-"contactid" serial NOT NULL, 
-"fullname" TEXT NOT NULL,
-"phone" TEXT NOT NULL,
-"email" TEXT NOT NULL,
-"syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-"syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-); 
+"syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+);
+
 
 CREATE TABLE "test" (
 "testid" serial NOT NULL,
@@ -248,10 +227,8 @@ CREATE TABLE "test" (
 "date" date,
 "score" smallint NOT NULL DEFAULT 0,
 "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-"syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-CONSTRAINT "pk_test" PRIMARY KEY ("testid"),
-CONSTRAINT "fk_child_journal" FOREIGN KEY ("childid") REFERENCES "child" ("childid"),
-CONSTRAINT "fk_question" FOREIGN KEY ("questionid") REFERENCES "question" ("questionid")
+"syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+
 );
 
 CREATE TABLE "timetable" (
@@ -265,11 +242,8 @@ CREATE TABLE "timetable" (
 "roomid" INTEGER NOT NULL,
 "day" TEXT not null,
 "syscreatedatutc" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-"syschangedatutc" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-CONSTRAINT "fk_group_timetable" FOREIGN KEY ("groupid") REFERENCES "group" ("groupid"),
-CONSTRAINT "fk_event_timetable" FOREIGN KEY ("subjectid") REFERENCES "subject" ("subjectid"),
-CONSTRAINT "fk_room_timetable" FOREIGN KEY ("roomid") REFERENCES "room" ("roomid"),
-CONSTRAINT "fk_employee_timetable" FOREIGN KEY ("employeeid") REFERENCES "employee" ("employeeid")
+"syschangedatutc" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+
 );
 
 CREATE TABLE syllabus (
@@ -281,8 +255,7 @@ topic VARCHAR(100) NOT NULL,
 subjectid INT NOT NULL,
 quantity INT NOT NULL,
 syscreatedatutc TIMESTAMP DEFAULT NOW() NOT NULL,
-syschangedatutc TIMESTAMP DEFAULT NOW() NOT NULL,
-FOREIGN KEY (subjectid) REFERENCES subject(subjectid)
+syschangedatutc TIMESTAMP DEFAULT NOW() NOT NULL
 );
 
 create table syllabu (
@@ -295,9 +268,8 @@ create table syllabu (
     FOREIGN KEY (subjectid) REFERENCES subject(subjectid)
 )
 
-ALTER TABLE legal_rep ADD CONSTRAINT fk_lr_person FOREIGN KEY (personid) REFERENCES person(personid);
 
 ALTER TABLE person ADD CONSTRAINT uq_passport UNIQUE (passportseries, passportnumber, passportdate);
 ALTER TABLE attendance ALTER COLUMN date SET DEFAULT CURRENT_DATE;
-ALTER TABLE attendance ADD CONSTRAINT fk_excuse FOREIGN KEY (excuseid) REFERENCES excuse(excuseid);
+
 
