@@ -112,7 +112,7 @@ app.post('/contact', (req, res) => {
     // insert into address(region, city, street, house, building, flat) values('Ñàðàòîâñêàÿ îáëàñòü', 'Ñàðàòîâ', 'Ïðîñïåêò èì.Ñòîëûïèíà', 5, null, 1)
 })
 app.delete('/contact/:id', (req, res) => {
-    pool.query("DELETE FROM contact WHERE contactid=$1", [req.params.id], (err, result) => {
+    pool.query("DELETE FROM contact WHERE contractid=$1", [req.params.id], (err, result) => {
         if (!err) {
             if (result.rowCount === 1) {
                 res.status(200).send("Deleted")

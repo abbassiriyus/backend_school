@@ -169,8 +169,8 @@ CREATE TABLE attendance (
 attendanceid SERIAL PRIMARY KEY,
 date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
 childid INTEGER NOT NULL,
-arrivaltime varchar(12),
-leavingtime varchar(12),
+arrivaltime varchar(20),
+leavingtime varchar(20),
 excuseid INTEGER,
 employeeid INTEGER NOT NULL,
 syscreatedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -262,12 +262,19 @@ create table syllabu (
     "syllabuid" SERIAL PRIMARY KEY,
     "subjectid" integer NOT NULL,
     "winterparty" integer  not null,
-     "winterles" integer  not null,
+    "winterles" integer  not null,
     "mountain" integer  not null,
     "animal" integer  not null,
     FOREIGN KEY (subjectid) REFERENCES subject(subjectid)
 )
 
+CREATE TABLE contract (
+    contractid SERIAL PRIMARY KEY,
+    "phone" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "fullname" TEXT NOT NULL,
+     syscreatedatutc TIMESTAMP DEFAULT NOW() NOT NULL
+)
 
 ALTER TABLE person ADD CONSTRAINT uq_passport UNIQUE (passportseries, passportnumber, passportdate);
 ALTER TABLE attendance ALTER COLUMN date SET DEFAULT CURRENT_DATE;
