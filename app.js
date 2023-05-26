@@ -6,7 +6,7 @@ var fs =require('fs')
 var cors = require('cors')
 const upload = require("express-fileupload")
 const pool = require("./db")
-const PORT = process.env.PORT || 6000
+const PORT = process.env.PORT || 7000
 app.use(cors())
 app.use(upload())
 app.use(express.static('./public'))
@@ -1647,7 +1647,7 @@ app.delete('/syllabu/:id', (req, res) => {
 app.put('/syllabu/:id', (req, res) => {
     var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE syllabu SET subjectid=$1,winterparty=$2,winterles=$3,mountain=$4,animal=$5, WHERE timetableid=$6`,
+    pool.query(`UPDATE syllabu SET subjectid=$1,winterparty=$2,winterles=$3,mountain=$4,animal=$5, WHERE syllabuid=$6`,
         [body.subjectid, body.winterparty, body.winterles, body.mountain, body.animal, req.params.id], (err, result) => {
             if (!err) {
                 if (result.rowCount === 1) {
