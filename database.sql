@@ -163,7 +163,6 @@ topic  TEXT not NULL,
 duration integer NOT NULL,
 syscreatedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 syschangedatutc TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-
 );
 CREATE TABLE attendance (
 attendanceid SERIAL PRIMARY KEY,
