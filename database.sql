@@ -16,15 +16,16 @@ personlastname VARCHAR(50) NOT NULL,
 personfirstname VARCHAR(50) NOT NULL,
 personmiddlename VARCHAR(50) NOT NULL,
 dateofbirth DATE NOT NULL,
-gender CHAR(1) NOT NULL,
-passportseries CHAR(4) NOT NULL,
-passportnumber CHAR(6) NOT NULL,
+gender VARCHAR(1) NOT NULL,
+passportseries VARCHAR(8) NOT NULL,
+passportnumber VARCHAR(10) NOT NULL,
 passportdate DATE NOT NULL,
-phone VARCHAR(30) NOT NULL,
+phone TEXT NOT NULL,
 email VARCHAR(255) NOT NULL,
 addressid INTEGER NOT NULL,
 syscreatedatutc TIMESTAMP(3) DEFAULT NOW() NOT NULL,
-syschangedatutc TIMESTAMP(3) DEFAULT NOW() NOT NULL
+syschangedatutc TIMESTAMP(3) DEFAULT NOW() NOT NULL,
+FOREIGN KEY (addressid) REFERENCES address (addressid)
 );
 
 
@@ -62,10 +63,25 @@ CREATE TABLE employee(
 "photo" BYTEA,
 syscreatedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
-
+CONSTRAINT fk_person FOREIGN KEY (personid) REFERENCES person(personid),
+CONSTRAINT fk_position FOREIGN KEY (positionid) REFERENCES position(positionid),
+CONSTRAINT fk_labor FOREIGN KEY (laborid) REFERENCES labor(laborid)
 );
 
-CREATE TABLE "room" ( "roomid" serial NOT NULL, "roomnumber" smallint NOT NULL, "floor" smallint NOT NULL, "square" numeric(5,2) NOT NULL, "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "pk_room" PRIMARY KEY ("roomid") ); CREATE TABLE "age" ( "ageid" serial NOT NULL, "categoryage" varchar(3) NOT NULL, "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "pk_age" PRIMARY KEY ("ageid") );
+CREATE TABLE "room" ( 
+    "roomid" serial NOT NULL,
+     "roomnumber" smallint NOT NULL,
+      "floor" smallint NOT NULL, 
+      "square" numeric(5,2) NOT NULL, 
+      "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+      "syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+       CONSTRAINT "pk_room" PRIMARY KEY ("roomid") );
+        CREATE TABLE "age" (
+             "ageid" serial NOT NULL, 
+             "categoryage" varchar(3) NOT NULL,
+            "syscreatedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+              "syschangedatutc" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+              CONSTRAINT "pk_age" PRIMARY KEY ("ageid") );
 CREATE TABLE "group" (
 "groupid" serial primary key,
 "groupname" varchar(50) not null,
@@ -79,7 +95,9 @@ CREATE TABLE "group_emp" (
 "groupid" integer not null,
 "syscreatedatutc" timestamp(3) not null default (now()),
 "syschangedatutc" timestamp(3) not null default (now()),
-primary key ("groupid", "employeeid")
+primary key ("groupid", "employeeid"),
+foreign key ("groupid") references "group" ("groupid"),
+foreign key ("employeeid") references "employee" ("employeeid")
 );
 
 CREATE TABLE "child"(
@@ -168,8 +186,8 @@ CREATE TABLE attendance (
 attendanceid SERIAL PRIMARY KEY,
 date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
 childid INTEGER NOT NULL,
-arrivaltime varchar(20),
-leavingtime varchar(20),
+arrivaltime varchar(30),
+leavingtime varchar(30),
 excuseid INTEGER,
 employeeid INTEGER NOT NULL,
 syscreatedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -178,8 +196,8 @@ syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 CREATE TABLE excuse (
 excuseid SERIAL PRIMARY KEY,
-datestart TIMESTAMP NOT NULL,
-dateend TIMESTAMP NOT NULL,
+datestart TEXT NOT NULL,
+dateend TEXT NOT NULL,
 childid INTEGER NOT NULL,
 daypart VARCHAR(50) NOT NULL,
 reason VARCHAR(50) NOT NULL,
