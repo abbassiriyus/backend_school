@@ -1022,7 +1022,8 @@ app.get('/subject/:id', (req, res) => {
     })
 })
 app.post('/subject', (req, res) => {
-    var newdate = `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
+    // var newdate = `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
+    var datenew = new Date().toISOString()
     const body = req.body
     pool.query("insert into subject ( subjectname, subjectgroupid,topic, duration,syschangedatutc) values ($1,$2,$3,$4,$5)",
         [body.subjectname, body.subjectgroupid, body.topic,body.duration, newdate], (err, result) => {
