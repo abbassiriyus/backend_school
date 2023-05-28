@@ -1049,8 +1049,8 @@ app.delete('/subject/:id', (req, res) => {
 app.put('/subject/:id', (req, res) => {
     var datenew = new Date().toISOString()
     const body = req.body
-    pool.query(`UPDATE subject SET subjectname=$1, subjectgroupid=$2, duration=$3,topic=$5 syschangedatutc=$6 WHERE subjectid=$4`,
-        [body.subjectname, body.subjectgroupid, body.duration,  req.params.id,body.topic, datenew], (err, result) => {
+    pool.query(`UPDATE subject SET subjectname=$1, subjectgroupid=$2, duration=$3,topic=$4 syschangedatutc=$6 WHERE subjectid=$5`,
+        [body.subjectname, body.subjectgroupid, body.duration,  body.topic,req.params.id,  datenew], (err, result) => {
             if (!err) {
                 if (result.rowCount === 1) {
                     res.status(200).send("Updated")
