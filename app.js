@@ -1026,7 +1026,7 @@ app.post('/subject', (req, res) => {
     var datenew = new Date().toISOString()
     const body = req.body
     pool.query("insert into subject ( subjectname, subjectgroupid,topic, duration,syschangedatutc) values ($1,$2,$3,$4,$5)",
-        [body.subjectname, body.subjectgroupid, body.topic,body.duration, newdate], (err, result) => {
+        [body.subjectname, body.subjectgroupid, body.topic,body.duration, datenew], (err, result) => {
             if (!err) {
                 res.status(201).send("Created")
             } else {
