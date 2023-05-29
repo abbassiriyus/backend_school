@@ -62,12 +62,11 @@ CREATE TABLE employee(
 "education" VARCHAR (50) NOT NULL,
 "photo" BYTEA,
 syscreatedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+syschangedatutc TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 CONSTRAINT fk_person FOREIGN KEY (personid) REFERENCES person(personid),
 CONSTRAINT fk_position FOREIGN KEY (positionid) REFERENCES position(positionid),
 CONSTRAINT fk_labor FOREIGN KEY (laborid) REFERENCES labor(laborid)
 );
-
 CREATE TABLE "room" ( 
     "roomid" serial NOT NULL,
      "roomnumber" smallint NOT NULL,
@@ -285,7 +284,7 @@ create table syllabu (
     FOREIGN KEY (subjectid) REFERENCES subject(subjectid)
 )
 
-CREATE TABLE contract (
+CREATE TABLE contact (
     contractid SERIAL PRIMARY KEY,
     "phone" TEXT NOT NULL,
     "email" TEXT NOT NULL,
